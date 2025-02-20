@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список задач</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fffae6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            cursor: pointer;
+            background-color: #ffcc00;
+            color: black;
+            border: none;
+        }
+        .task-list {
+            list-style: none;
+            padding: 0;
+        }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Список задач</h1>
+        <input type="text" id="task-input" placeholder="Новая задача">
+        <button id="add-task">Добавить</button>
+        <button id="filter-all">Все</button>
+        <button id="filter-active">Активные</button>
+        <button id="filter-completed">Выполненные</button>
+        <ul class="task-list" id="task-list"></ul>
+    </div>
+    <script>
+        const taskInput = document.getElementById("task-input");
+        const addTaskButton = document.getElementById("add-task");
+        const taskList = document.getElementById("task-list");
+        const filterAllButton = document.getElementById("filter-all");
+        const filterActiveButton = document.getElementById("filter-active");
+        const filterCompletedButton = document.getElementById("filter-completed");
+
+        let tasks = [];
+        let filter = "all";
+
+        const renderTasks = () => {
+            taskList.innerHTML = "";
+            tasks.filter(task =>
+                filter === "all" ||
+                (filter === "active" && !task.completed) ||
+                (filter === "completed" && task.completed)
+            ).forEach((task, index) => {
+                const li = document.createElement("li");
+                li.className = "task-item";
+                li.innerHTML = `
+                    <span class="${task.completed ? 'completed' : ''}">${task.text}</span>
+                    <button onclick="toggleTask(${index})">✔</button>
+                    <button onclick="removeTask(${index})">❌</button>
+                `;
+                taskList.appendChild(li);
+            });
+        };
+
+        const addTask = () => {
+            const text = taskInput.value.trim();
+            if (text) {
+                tasks = [...tasks, { text, completed: false }];
+                taskInput.value = "";
+                renderTasks();
+            }
+        };
+
+        const toggleTask = (index) => {
+            tasks = tasks.map((task, i) =>
+                i === index ? { ...task, completed: !task.completed } : task
+            );
+            renderTasks();
+        };
+
+        const removeTask = (index) => {
+            tasks = tasks.filter((_, i) => i !== index);
+            renderTasks();
+        };
+
+        filterAllButton.addEventListener("click", () => { filter = "all"; renderTasks(); });
+        filterActiveButton.addEventListener("click", () => { filter = "active"; renderTasks(); });
+        filterCompletedButton.addEventListener("click", () => { filter = "completed"; renderTasks(); });
+
+        addTaskButton.addEventListener("click", addTask);
+        taskInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") addTask();
+        });
+    </script>
+</body>
+</html>
